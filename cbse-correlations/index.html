@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+  <title>CBSE 2013 Subject Correlations</title>
+  <style>
+
+  @import url(style.css?20120427);
+
+  #circle circle {
+    fill: none;
+    pointer-events: all;
+  }
+
+  .group path {
+    fill-opacity: .5;
+  }
+
+  path.chord {
+    stroke: #000;
+    stroke-width: .25px;
+  }
+
+  #circle:hover path.fade {
+    display: none;
+  }
+
+  </style>
+
+</head>
+
+<body>
+
+<div id="content"></div>
+
+<div id="attribution">
+  Hover over subject names and chords for more information<br/>
+  CBSE 2013 data from <a href="https://github.com/deedydas/CISCEResults2013">Debarghya Das</a>. 
+  Built with <a href="http://d3js.org">D3</a>.
+</div>
+
+
+
+<script src="d3.v2.min.js"></script>
+<script>
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+var width = 960,
+    height = 800,
+    outerRadius = Math.min(width, height) / 2 - 10,
+    innerRadius = outerRadius - 24;
+
+var formatPercent = d3.format(".1%");
+
+var arc = d3.svg.arc()
+    .innerRadius(innerRadius)
+    .outerRadius(outerRadius);
+
+var layout = d3.layout.chord()
+    .padding(.04)
+    .sortSubgroups(d3.descending)
+    .sortChords(d3.ascending);
+
+var path = d3.svg.chord()
+    .radius(innerRadius);
+
+var svg = d3.select("#content").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+  .append("g")
+    .attr("id", "circle")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+svg.append("circle")
+    .attr("r", outerRadius);
+
+d3.csv("subjects.csv", function(subjects) {
+  d3.json("matrix.json", function(matrix) {
+
+    layout.matrix(matrix);
+
+    var group = svg.selectAll(".group")
+        .data(layout.groups)
+      .enter().append("g")
+        .attr("class", "group")
+        .on("mouseover", mouseover);
+
+    
+
+    // Add the group arc.
+    var groupPath = group.append("path")
+        .attr("id", function(d, i) { return "group" + i; })
+        .attr("d", arc)
+        .style("fill", function(d, i) { return d3.rgb(200,200,200); });
+
+    var groupText = group.append("text")
+        .attr("x", 6)
+        .attr("dy", 15);
+
+    groupText.append("textPath")
+        .attr("xlink:href", function(d, i) { return "#group" + i; })
+        .text(function(d, i) { return subjects[i].name; });
+    groupText.append("title").text(function(d, i) {
+      console.log();
+      return "Exam taken by " + numberWithCommas(subjects[i].takers) + " students";
+    });
+
+
+    // Add the chords.
+    var chord = svg.selectAll(".chord")
+        .data(layout.chords)
+      .enter().append("path")
+        .attr("class", "chord")
+        .style("fill", function(d) { 
+          
+          var i = 255*(1-matrix[d.source.index][d.target.index]);
+          var color = d3.rgb(i,i,i);
+          return color; 
+        })
+        .attr("d", path);
+
+    chord.append("title").text(function(d) {
+      return "Correlation between "
+          + subjects[d.source.index].name
+          + " and " + subjects[d.target.index].name
+          + " scores: " + formatPercent(d.source.value);
+    });
+
+    function mouseover(d, i) {
+      chord.classed("fade", function(p) {
+        return p.source.index != i
+            && p.target.index != i;
+      });
+    }
+  });
+});
+
+</script>
+
+
+
+</body></html>

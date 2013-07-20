@@ -1,0 +1,43 @@
+@import url(http://fonts.googleapis.com/css?family=PT+Serif|PT+Serif:b|PT+Serif:i|PT+Sans|PT+Sans:b);
+
+html {
+  min-width: 1040px;
+}
+
+body {
+  background: #ffffff;
+  color: #333;
+  font-family: "PT Serif", serif;
+  margin-top: 2em;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  width: 960px;
+}
+
+svg {
+  font: 10px sans-serif;
+  color: white
+}
+
+svg text{
+  color: white;
+}
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+#attribution {
+  font: 16px;
+  margin-top: 10px;
+  color: #333;
+  text-align: center;
+}
+
+a {
+  color: #333; 
+  text-decoration: none;
+  font-weight: bold;
+}
