@@ -34,6 +34,7 @@
 <div id="content"></div>
 
 <div id="attribution">
+  Darkness reflects high score correlation, size reflects number of test takers<br />
   Hover over subject names and chords for more information<br/>
   CBSE 2013 data from <a href="https://github.com/deedydas/CISCEResults2013">Debarghya Das</a>. 
   Built with <a href="http://d3js.org">D3</a>.
@@ -79,7 +80,21 @@ svg.append("circle")
 d3.csv("subjects.csv", function(subjects) {
   d3.json("matrix.json", function(matrix) {
 
-    layout.matrix(matrix);
+    // correlation (color)
+    var cmatrix = matrix.map(function(row) {
+      return row.map(function(item) {
+        return item[0];
+      });
+    });
+    
+    // number of common takers (thickness)
+    var tmatrix =  matrix.map(function(row) {
+      return row.map(function(item) {
+        return item[1];
+      });
+    });
+
+    layout.matrix(tmatrix);
 
     var group = svg.selectAll(".group")
         .data(layout.groups)
@@ -115,17 +130,20 @@ d3.csv("subjects.csv", function(subjects) {
         .attr("class", "chord")
         .style("fill", function(d) { 
           
-          var i = 255*(1-matrix[d.source.index][d.target.index]);
+          var i = 255*(1-cmatrix[d.source.index][d.target.index]);
           var color = d3.rgb(i,i,i);
           return color; 
         })
         .attr("d", path);
 
     chord.append("title").text(function(d) {
-      return "Correlation between "
-          + subjects[d.source.index].name
-          + " and " + subjects[d.target.index].name
-          + " scores: " + formatPercent(d.source.value);
+      console.log(subjects[d.source.index].name);
+      var source_subject = subjects[d.source.index].name;
+      var dest_subject = subjects[d.target.index].name;
+      return "Common takers for " + source_subject + " and " + dest_subject +
+        ": " + numberWithCommas(tmatrix[d.source.index][d.target.index]) + 
+        "\n" + "Correlation: " +
+        formatPercent(cmatrix[d.source.index][d.target.index]);
     });
 
     function mouseover(d, i) {
