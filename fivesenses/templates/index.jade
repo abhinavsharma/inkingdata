@@ -1,4 +1,4 @@
-html(ng-app)
+html
   head
     link(rel='stylesheet', type='text/css',
         href='bower_components/foundation/css/foundation.min.css')
@@ -6,18 +6,58 @@ html(ng-app)
         href='bower_components/foundation/css/normalize.css')
     link(rel='stylesheet', type='text/css',
         href='css/style.css')
+    link(rel='stylesheet', type='text/css',
+        href='//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css')
+    link(rel='stylesheet', type='text/css',
+        href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400|Source+Sans+Pro:300,400,600,700')
     title The Five Senses Project
     script(src='bower_components/foundation/js/vendor/modernizr.js')
   body
+    header
+      div.row 
+        div.large-12.columns
+          h1.text-center The Five Senses Project
     div.row
-      div.large-3.medium-2.small-0.columns &nbsp;
-      div.large-6.medium-8.small-12.columns.text-center
-        h1 The Five Senses Project
-      div.large-3.medium-2.small-0.columns &nbsp;
+      div.large-4.medium-4.columns
+        span.number.one 1
+        h3 Learn about the Project
+        p.step-text I'm so glad you're here! Read 
+          a(target='_blank' href='https://medium.com/p/4b18fbdd2bd5') this post 
+          | for a little history the Five Senses Project and why I created it.
 
+      div.large-4.medium-4.columns
+        span.number.one 2
+        h3 Track Your Experiences
+        p.step-text Copy 
+          a(target='_blank' href='https://docs.google.com/spreadsheet/ccc?key=0ApTHzTxuU-XsdGtDaVJwaHhkbC1LXzU4UWs3aEJMWEE&usp=sharing') this Google spreadsheet 
+          | into one on your Google 
+          | Drive. You can use "File > Make a copy." Then change it to your experiences!
+      div.large-4.medium-4.columns
+        span.number.two 3
+        h3 Analyze Your Data
+        p.step-text On your spreadsheet, go to 
+          | "File > Publish to the web"
+          | and click on 
+          | "Start publishing."
+          | Then, copy and paste the generated link into the box below.
+    div.row
+      div.large-12.medium-12.small-12.columns
+        input.spreadsheet-link(type="text", placeholder="Paste link here. It looks like https://docs.google.com/spreadsheet/pub?key=0ApTH...")
+    div.row
+      div.small-12.columns.text-center
+        a.button#go GO
 
+    div.row
+      div.large-12.columns.text-center
+        p Made by 
+          a(target='_blank' href='http://abhinavsharma.com') Abhinav Sharma
+          |  in San Francisco, CA.
+
+      
 
     script(src='bower_components/foundation/js/vendor/jquery.js')
     script(src='bower_components/foundation/js/foundation.js')
+    script(src='bower_components/underscore/underscore-min.js')
+    script(src='scripts/main.js')
     script
       | $(document).foundation();
