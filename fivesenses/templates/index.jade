@@ -7,7 +7,7 @@ html
     link(rel='stylesheet', type='text/css',
         href='css/style.css')
     link(rel='stylesheet', type='text/css',
-        href='//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css')
+        href='bower_components/foundation-icons/foundation_icons_social/stylesheets/social_foundicons.css')
     link(rel='stylesheet', type='text/css',
         href='http://fonts.googleapis.com/css?family=Source+Code+Pro:400|Source+Sans+Pro:300,400,600,700')
     title The Five Senses Project
@@ -17,43 +17,83 @@ html
       div.row 
         div.large-12.columns
           h1.text-center The Five Senses Project
-    div.row
-      div.large-4.medium-4.columns
-        span.number.one 1
-        h3 Learn about the Project
-        p.step-text I'm so glad you're here! Read 
-          a(target='_blank' href='https://medium.com/p/4b18fbdd2bd5') this post 
-          | for a little history the Five Senses Project and why I created it.
+    
+    div.instructions
+      div.row
+        div.large-4.medium-4.columns
+          span.number.one 1
+          h3.step Learn about the Project
+          p.step-text I'm so glad you're here! Read 
+            a(target='_blank' href='https://medium.com/p/4b18fbdd2bd5') this post 
+            | for a little history the Five Senses Project and why I created it.
 
-      div.large-4.medium-4.columns
-        span.number.one 2
-        h3 Track Your Experiences
-        p.step-text Copy 
-          a(target='_blank' href='https://docs.google.com/spreadsheet/ccc?key=0ApTHzTxuU-XsdGtDaVJwaHhkbC1LXzU4UWs3aEJMWEE&usp=sharing') this Google spreadsheet 
-          | into one on your Google 
-          | Drive. You can use "File > Make a copy." Then change it to your experiences!
-      div.large-4.medium-4.columns
-        span.number.two 3
-        h3 Analyze Your Data
-        p.step-text On your spreadsheet, go to 
-          | "File > Publish to the web"
-          | and click on 
-          | "Start publishing."
-          | Then, copy and paste the generated link into the box below.
-    div.row
-      div.large-12.medium-12.small-12.columns
-        input.spreadsheet-link(type="text", placeholder="Paste link here. It looks like https://docs.google.com/spreadsheet/pub?key=0ApTH...")
-    div.row
-      div.small-12.columns.text-center
-        a.button#go GO
+        div.large-4.medium-4.columns
+          span.number.one 2
+          h3.step Track Your Data
+          p.step-text Copy
+            a(target='_blank' href='https://docs.google.com/spreadsheet/ccc?key=0ApTHzTxuU-XsdGtDaVJwaHhkbC1LXzU4UWs3aEJMWEE&usp=sharing') this Google spreadsheet 
+            | into one on your Google
+            | Drive. You can use "File > Make a copy." Then change it to your experiences!
+        div.large-4.medium-4.columns
+          span.number.two 3
+          h3.step Find Amazing Experiences
+          p.step-text On your spreadsheet, go to 
+            | "File > Publish to the web"
+            | and click on 
+            | "Start publishing."
+            | Then, copy and paste the generated link into the box below.
+      div.row
+        div.large-12.medium-12.small-12.columns
+          input.spreadsheet-link(type="text", placeholder="Paste link here. It looks like https://docs.google.com/spreadsheet/pub?key=0ApTH...")
+    
+    div.results.hide
+      - for (var i = 0; i < 2; i++) {
+      - var cls = (i === 0) ? 'love' : 'hate';
+      - var title = (i === 0) ? 'Remember What You Love' : 'Avoid What You Hate';
+      - var color = (i === 0) ? 'plainback' : 'shadeback';
+      div(class=color)
+        div.row(class=cls)
+          div.text-center
+            h1 #{title}
+          div.large-4.medium-4.small-12.columns
+            div.text-center
+              img.header-image(src='img/eye.svg')
+            hr
+            ul.sight
+          div.large-4.medium-4.small-12.columns
+            div.text-center
+              img.header-image(src='img/ear.svg')
+            hr
+            ul.sound
+          div.large-4.medium-4.small-12.columns
+            div.text-center
+              img.header-image(src='img/hand.svg')
+            hr
+            ul.touch
+          div.large-4.medium-4.small-12.columns
+            div.text-center
+              img.header-image(src='img/nose.svg')
+            hr
+            ul.smell
+          div.large-4.medium-4.small-12.columns
+            div.text-center
+              img.header-image(src='img/tongue.svg')
+            hr
+            ul.taste
+          div.large-4.medium-4.small-12.columns &nbsp;
+      - }
+    
 
-    div.row
-      div.large-12.columns.text-center
-        p Made by 
-          a(target='_blank' href='http://abhinavsharma.com') Abhinav Sharma
-          |  in San Francisco, CA.
-
-      
+      - for (var i = 0; i < 2; i++) {
+      - var image = (i === 0) ? 'img/skydive.svg' : 'img/slip.svg';
+      - var cls = (i === 0) ? 'adventures' : 'fails';
+      - var title = (i === 0) ? 'Have Some Great Adventures' : 'But Not Some Epic Fails';
+      - var color = (i === 0) ? 'plainback' : 'shadeback';
+      div(class=color)
+        div.row(class=cls)
+          div.text-center
+            h1 #{title}
+      - }
 
     script(src='bower_components/foundation/js/vendor/jquery.js')
     script(src='bower_components/foundation/js/foundation.js')

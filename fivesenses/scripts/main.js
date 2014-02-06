@@ -6,8 +6,9 @@ var sanitizeData = function(data) {
       'experience': row['gsx$experience']['$t'],
     };
     _.map(senses, function (sense) {
-      processedRow['rate-' + sense] = parseInt(row['gsx$rate-' + sense]['$t']);
-      processedRow['occ-' + sense] = row['gsx$occ-' + sense]['$t'] === 'Y' ? 
+      processedRow['rate-' + sense] =
+        parseInt(row['gsx$rate-' + sense]['$t'], 10);
+      processedRow['occ-' + sense] = row['gsx$occ-' + sense]['$t'] === 'Y' ?
         true : false;
     });
     processedRow['locations'] = row['gsx$locations']['$t'].split(',');
@@ -20,7 +21,7 @@ var generateClusters = function(data) {
     return _.map(row.locations, function(location) {
       row['location'] = location;
       return row;
-    })
+    });
   }));
   return _.groupBy(exploded, 'location');
 };
@@ -33,7 +34,7 @@ var createTable = function(dataGroup) {
   var $headrow = $('<tr><td>Experience</td></tr>');
   _.each(senses, function(sense) {
     $headrow.append($('<td>' + sense + '</td>'));
-  })
+  });
 
   _.each(dataGroup, function(row) {
     var $bodyrow = $('<tr><td>' + row.experience + '</td></tr>');
@@ -41,51 +42,177 @@ var createTable = function(dataGroup) {
       $bodyrow.append('<td>' + row['rate-' + sense]+ '</td>');
     });
     $tbody.append($bodyrow);
-  })
+  });
   $thead.append($headrow);
   $table.append($thead);
   $table.append($tbody);
   return $table;
 };
 
-var handleData = function(data) {
-    console.log('handleData');
-    var data = sanitizeData(data.feed.entry);
-    var clusters = generateClusters(data);
-    var locations = _.keys(clusters);
-    _.each(locations, function(location) {
-      var $title = $('<h2>' + location + '</h2>');
-      var $table = createTable(_.uniq(clusters[location]));
-      $('#content-area').append($title);
-      $('#content-area').append($table);
+var printCliques = function(cliques) {
+  _.each(cliques, function(clique) {
+    console.log(_.map(clique, function(node) {return node.experience}, ''));
+  });
+};
+
+var generateCliques = function(data) {
+  var clusters = generateClusters(data);
+  var locations = _.keys(clusters);
+  var locationCliques = {};
+  _.each(locations, function(location) {
+    console.log(location);
+    var $title = $('<h2>' + location + '</h2>');
+    var cluster = _.uniq(clusters[location]);
+    var allSubsets = powerSet(cluster);
+    var cliques = _.filter(allSubsets, function(subset) {
+      if (subset.length < 2) {
+        return false;
+      }
+      var isClique = true;
+      for (var i = 0; i < subset.length; i++) {
+        for (var j = i + 1; j < subset.length; j++) {
+          if (!hasEdge(subset[i], subset[j])) {
+            isClique = false;
+          }
+        }
+      }
+      return isClique;
     });
-    
+    locationCliques[location] = cliques;
+  });
+  return locationCliques;
 }
+
+var renderExperiences = function(data, cls) {
+  console.log('Render experiences for ' + cls);
+  _.each(senses, function(sense) {
+      _.each(
+        _.sortBy(data, function(row) {
+          var rank = row['rate-' + sense]
+          return cls === 'love' ? -rank : +rank;
+        }).slice(0,3), 
+        function(row) {
+          var $el = $('<li></li>');
+          $el.html(row.experience);
+          $('.' + cls + ' ul.' + sense).append($el);
+        }
+      );
+  });
+};
+
+var renderCliques = function(lCliques, cls) {
+  console.log('Render cliques for ' + cls);
+  var locations = _.keys(lCliques);
+  _.each(locations, function(location) {
+    var $location = $('<div>');
+    $location.addClass('large-4 medium-6 small-12 columns');
+    var $locationTitle = $('<h3>' + location + '</h3><hr />');
+    var cliques = lCliques[location];
+    if (cliques.length === 0) {
+      return;
+    }
+    var $list = $('<ul>');
+    cliques = _.sortBy(cliques, function(clique) {
+      if (cls === 'adventures') {
+        return - _.reduce(senses, function(score, sense) {
+          return score + _.max(clique, function(row) {
+            return row['rate-' + sense];
+          })['rate-' + sense];
+        }, 0);
+      } else {
+        return _.reduce(senses, function(score, sense) {
+          return score + _.min(clique, function(row) {
+            return row['rate-' + sense];
+          })['rate-' + sense];
+        }, 0);
+      }
+    }).slice(0,5);
+    _.each(cliques, function(clique) {
+      var $item = $('<li>');
+      $item.html(
+        _.map(clique, function(row) {return row.experience}).join(' + ')
+      );
+      $list.append($item);
+    });
+
+    var $locationTitleWrapper = $('<div>');
+    $locationTitleWrapper.addClass('text-center');
+    $locationTitleWrapper.append($locationTitle);
+    $location.append($locationTitleWrapper);
+    $location.append($list);
+    $('.' + cls).append($location);
+  });
+};
+
+var handleData = function(data) {
+    data = sanitizeData(data.feed.entry);
+    renderExperiences(data, 'love');
+    renderExperiences(data, 'hate');
+    var lCliques = generateCliques(data);
+    renderCliques(lCliques, 'adventures');
+    renderCliques(lCliques, 'fails');
+    $('.instructions').hide();
+    $('.results').show();
+};
+
+var hasEdge = function(ob1, ob2) {
+  var edge = true;
+  _.each(senses, function(sense) {
+    if (ob1['occ-' + sense] && ob2['occ-' + sense]) {
+      edge = false;
+    }
+  });
+  return edge;
+};
+
+var powerSet = function(ary) {
+  var ps = [[]];
+  for (var i=0; i < ary.length; i++) {
+    for (var j = 0, len = ps.length; j < len; j++) {
+      ps.push(ps[j].concat(ary[i]));
+    }
+  }
+  return ps;
+};
 
 var linkFail = function() {
   $('.spreadsheet-link').val('');
   $('.spreadsheet-link').attr('placeholder', 'Sorry, that link is invalid, please try again');
-}
+};
 
-$('#go').click(function() {
-  console.log('go')
-  var uri = $('.spreadsheet-link').val();
+var extractSpreadsheetLink = function(uri) {
   if (!uri) {
-    linkFail();
-    return;
+    return null;
   }
   var match = uri.match(/key=(.*?)&/);
   if (match && match.length === 2) {
     var key = match[1];
-    var google_uri = "https://spreadsheets.google.com/feeds/list/" + 
-      key + 
+    var google_uri = "https://spreadsheets.google.com/feeds/list/" +
+      key +
       "/od6/public/values?alt=json-in-script&callback=handleData";
-    var $script = $('<script></script>');
-    $script.attr('src', google_uri);
-    $(document.body).append($script);
-    console.log(google_uri);
+    return google_uri;
   } else {
-    linkFail();
-    return;
+    return null;
   }
+}
+
+$(".spreadsheet-link").bind("paste", function() {
+  var self = this;
+  setTimeout(function() {
+    var link = extractSpreadsheetLink($(self).val());
+    console.log(this);
+    if (link === null) {
+      $(".spreadsheet-link").css('background-color', 'red');
+      $(".spreadsheet-link").css('color', '#222222');
+      $('.spreadsheet-link').attr('placeholder', 'Sorry, that link is invalid, please try again');
+      return;
+    }
+    $(".spreadsheet-link").css('background-color', 'green');
+    $(".spreadsheet-link").css('color', '#ffffff');
+    $(".spreadsheet-link").prop('disabled', true);
+    $('.spreadsheet-link').val('Thanks! Processing...');
+    var $script = $('<script></script>');
+    $script.attr('src', link);
+    $(document.body).append($script);
+  }, 0);
 });
