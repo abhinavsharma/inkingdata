@@ -81,16 +81,16 @@ var generateCliques = function(data) {
     locationCliques[location] = cliques;
   });
   return locationCliques;
-}
+};
 
 var renderExperiences = function(data, cls) {
   console.log('Render experiences for ' + cls);
   _.each(senses, function(sense) {
       _.each(
         _.sortBy(data, function(row) {
-          var rank = row['rate-' + sense]
+          var rank = row['rate-' + sense];
           return cls === 'love' ? -rank : +rank;
-        }).slice(0,3), 
+        }).slice(0,3),
         function(row) {
           var $el = $('<li></li>');
           $el.html(row.experience);
@@ -98,14 +98,33 @@ var renderExperiences = function(data, cls) {
         }
       );
   });
+  // overall
+  _.each(
+    _.sortBy(data, function(row) {
+      var rank = _.reduce(
+        _.map(senses, function(sense) {
+          return row['rate-' + sense];
+        }),
+        function (s, a) { return s + a; },
+        0
+      );
+      return cls === 'love' ? -rank : +rank;
+    }).slice(0,5),
+    function(row) {
+      var $el = $('<li></li>');
+      $el.html(row.experience);
+      $('.' + cls + ' ul.all-senses').append($el);
+    }
+  );
 };
 
 var renderCliques = function(lCliques, cls) {
   console.log('Render cliques for ' + cls);
   var locations = _.keys(lCliques);
+  var i = 0;
   _.each(locations, function(location) {
     var $location = $('<div>');
-    $location.addClass('large-4 medium-6 small-12 columns');
+    $location.addClass('large-6 medium-6 small-12 columns');
     var $locationTitle = $('<h3>' + location + '</h3><hr />');
     var cliques = lCliques[location];
     if (cliques.length === 0) {
@@ -130,7 +149,7 @@ var renderCliques = function(lCliques, cls) {
     _.each(cliques, function(clique) {
       var $item = $('<li>');
       $item.html(
-        _.map(clique, function(row) {return row.experience}).join(' + ')
+        _.map(clique, function(row) {return row.experience;}).join(' + ')
       );
       $list.append($item);
     });
@@ -140,7 +159,16 @@ var renderCliques = function(lCliques, cls) {
     $locationTitleWrapper.append($locationTitle);
     $location.append($locationTitleWrapper);
     $location.append($list);
-    $('.' + cls).append($location);
+    var $row;
+    if (i++ % 2 === 0){
+      $row = $('<div>');
+      $row.addClass('row');
+      $('.' + cls).append($row);
+    } else {
+      $row = $('.' + cls + '>.row:last-child');
+    }
+    $row.append($location);
+    
   });
 };
 

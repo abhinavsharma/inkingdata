@@ -16,7 +16,7 @@ html
     header
       div.row 
         div.large-12.columns
-          h1.text-center The Five Senses Project
+          h1.text-center THE FIVE SENSES PROJECT
     
     div.instructions
       div.row
@@ -53,8 +53,10 @@ html
       - var color = (i === 0) ? 'plainback' : 'shadeback';
       div(class=color)
         div.row(class=cls)
+          br
           div.text-center
             h1 #{title}
+          br
           div.large-4.medium-4.small-12.columns
             div.text-center
               img.header-image(src='img/eye.svg')
@@ -80,7 +82,11 @@ html
               img.header-image(src='img/tongue.svg')
             hr
             ul.taste
-          div.large-4.medium-4.small-12.columns &nbsp;
+          div.large-4.medium-4.small-12.columns
+            div.text-center
+              img.header-image(src='img/sense.svg')
+            hr
+            ul.all-senses
       - }
     
 
@@ -91,8 +97,10 @@ html
       - var color = (i === 0) ? 'plainback' : 'shadeback';
       div(class=color)
         div.row(class=cls)
+          br
           div.text-center
             h1 #{title}
+          br
       - }
 
     script(src='bower_components/foundation/js/vendor/jquery.js')
